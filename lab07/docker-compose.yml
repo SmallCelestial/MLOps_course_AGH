@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  pytorch-model:
+    build:
+      context: .
+      dockerfile: Dockerfile.pytorch
+    image: model-pytorch:latest
+    container_name: pytorch-inference
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+
+  onnx-model:
+    build:
+      context: .
+      dockerfile: Dockerfile.onnx
+    image: model-onnx:latest
+    container_name: onnx-inference
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
