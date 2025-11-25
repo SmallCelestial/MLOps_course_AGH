@@ -1,8 +1,11 @@
 import onnxruntime as ort
 from transformers import AutoTokenizer
-import time
+from flask import Flask, request, jsonify
 
-tokenizer = AutoTokenizer.from_pretrained("tokenizer/")
+app = Flask(__name__)
+
+model_name = "sentence-transformers/multi-qa-mpnet-base-cos-v1"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 sess_options = ort.SessionOptions()
 sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
@@ -13,28 +16,17 @@ session = ort.InferenceSession(
 )
 
 
-def run_inference(text):
-    inputs = tokenizer(
-        text,
-        padding=True,
-        truncation=True,
-        return_tensors="np"
-    )
-
+@app.route('/predict', methods=['POST'])
+def predict():
+    text = request.json.get('text', '')
+    inputs = tokenizer(text, padding=True, truncation=True, return_tensors="np")
     onnx_inputs = {
         "input_ids": inputs["input_ids"],
         "attention_mask": inputs["attention_mask"]
     }
-
     outputs = session.run(None, onnx_inputs)
-    return outputs
+    return jsonify({"shape": list(outputs[0].shape)})
 
 
 if __name__ == "__main__":
-    text = "This is a test sentence for ONNX inference."
-    result = run_inference(text)
-    print(f"Inference completed. Output shape: {result[0].shape}")
-
-
-    while True:
-        time.sleep(60)
+    app.run(host='0.0.0.0', port=8000)

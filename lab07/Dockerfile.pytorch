@@ -2,11 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cu118
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-RUN pip install --no-cache-dir transformers
+RUN pip install --no-cache-dir flask transformers
 
-COPY models/model.pth /app/models/
+COPY models/ /app/models/
+
 COPY inference_pytorch.py /app/
 
 EXPOSE 8000

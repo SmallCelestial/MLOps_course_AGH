@@ -1,36 +1,27 @@
 import torch
-from transformers import AutoTokenizer, AutoModel
-import time
+from transformers import AutoModel, AutoTokenizer
+from flask import Flask, request, jsonify
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+app = Flask(__name__)
 
-tokenizer = AutoTokenizer.from_pretrained("tokenizer/")
+device = torch.device("cpu")
 
-model = AutoModel.from_pretrained("models/")
+model_name = "sentence-transformers/multi-qa-mpnet-base-cos-v1"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name)
+
 model.to(device)
 model.eval()
 
-
+@app.route('/predict', methods=['POST'])
 @torch.inference_mode()
-def run_inference(text):
-    inputs = tokenizer(
-        text,
-        padding=True,
-        truncation=True,
-        return_tensors="pt"
-    )
-
+def predict():
+    text = request.json.get('text', '')
+    inputs = tokenizer(text, padding=True, truncation=True, return_tensors="pt")
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
     outputs = model(**inputs)
-    return outputs.last_hidden_state
-
+    return jsonify({"shape": list(outputs.last_hidden_state.shape)})
 
 if __name__ == "__main__":
-    text = "This is a test sentence for PyTorch inference."
-    result = run_inference(text)
-    print(f"Inference completed. Output shape: {result.shape}")
-
-
-    while True:
-        time.sleep(60)
+    app.run(host='0.0.0.0', port=8000)

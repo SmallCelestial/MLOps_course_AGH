@@ -2,11 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir onnxruntime transformers
+RUN pip install --no-cache-dir onnxruntime flask transformers
 
 COPY model_optimized.onnx /app/
-
-COPY tokenizer/ /app/tokenizer/
 
 COPY inference_onnx.py /app/
 
