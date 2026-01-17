@@ -1,0 +1,50 @@
+import datetime
+import json
+import pendulum
+
+from airflow.providers.standard.operators.python import PythonVirtualenvOperator, PythonOperator
+
+from airflow import DAG
+
+
+def get_data(data_interval_start: pendulum.DateTime) -> dict:
+    import os
+    from twelvedata import TDClient
+
+    td = TDClient(apikey=os.environ["TWELVEDATA_API_KEY"])
+
+    ts = td.exchange_rate(symbol="USD/EUR", date=data_interval_start.isoformat())
+    data = ts.as_json()
+    return data
+
+
+def save_data(data: dict) -> None:
+    print("Saving the data")
+
+    if not data:
+        raise ValueError("No data received")
+
+    with open("data.jsonl", "a+") as file:
+        file.write(json.dumps(data))
+        file.write("\n")
+
+
+with DAG(
+    dag_id="scheduling_with_venvs",
+    start_date=pendulum.datetime(2026, 1, 15),
+    schedule=datetime.timedelta(days=1),
+) as dag:
+    get_data_op = PythonVirtualenvOperator(
+        task_id="get_data",
+        python_callable=get_data,
+        requirements=["twelvedata", "pendulum", "lazy_object_proxy"],
+        serializer="cloudpickle",
+    )
+
+    save_data_op = PythonOperator(
+        task_id="save_data",
+        python_callable=save_data,
+        op_kwargs={"data": get_data_op.output},
+    )
+
+    get_data_op >> save_data_op

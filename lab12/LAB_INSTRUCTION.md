@@ -512,8 +512,8 @@ Before we run Airflow, we also need to make sure that Docker can both read and w
 in its volumes. Run the commands below to do so.
 
 ```bash
-mkdir -p dags logs plugins config .uv_cache
-sudo chmod -R 777 logs dags plugins config .uv_cache
+mkdir -p dags logs plugins config .uv-cache
+sudo chmod -R 777 logs dags plugins config .uv-cache
 ```
 
 Now when you run `docker compose up`, a few things happen:
