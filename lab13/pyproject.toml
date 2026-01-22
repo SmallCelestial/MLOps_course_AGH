@@ -20,6 +20,8 @@ dependencies = [
     "tqdm>=4.67.1",
     "transformers[torch]>=4.51.0",
     "vllm>=0.13.0",
+    "matplotlib",
+    "guardrails-ai"
 ]
 
 [dependency-groups]
