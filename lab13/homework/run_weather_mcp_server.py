@@ -10,7 +10,6 @@ load_dotenv()
 
 mcp = FastMCP("Weather Assistant")
 OWM_API_KEY = os.getenv("OWM_API_KEY")
-print(f"OWM API key: {OWM_API_KEY}")
 
 geolocator = Nominatim(user_agent="weather_mcp_assistant")
 
