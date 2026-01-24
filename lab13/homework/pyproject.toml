@@ -1,0 +1,47 @@
+[project]
+name = "homework"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.11.*"
+dependencies = [
+    "fastmcp>=2.14.3",
+    "guardrails-ai>=0.7.2",
+    "ipywidgets>=8.1.8",
+    "jupyter>=1.1.1",
+    "mcp-use>=1.5.2",
+    "openai<2",
+    "polars>=1.37.1",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "tqdm>=4.67.1",
+    "transformers[torch]>=4.51.0",
+    "matplotlib",
+    "httpx[http2]>=0.28.1",
+    "geopy>=2.4.1",
+    "accelerate>=0.26.0",
+]
+
+[dependency-groups]
+weather = [
+    "fastmcp",
+    "httpx[http2]",
+    "uvicorn",
+    "python-dotenv",
+    "geopy>=2.4.1",
+]
+app = [
+    "openai",
+    "mcp[cli]",
+    "guardrails-ai",
+    "python-dotenv",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }

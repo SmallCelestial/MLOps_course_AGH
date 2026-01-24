@@ -1,0 +1,30 @@
+services:
+  # 1. vLLM Server on Athena due to lack of GPU
+
+  weather-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.weather
+    command: python run_weather_mcp_server.py
+    environment:
+      - OWM_API_KEY=${OWM_API_KEY}
+    ports:
+      - "8001:8001"
+
+  trip-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      args:
+        GUARDRAILS_API_KEY: ${GUARDRAILS_API_KEY}
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - VLLM_BASE_URL=http://host.docker.internal:8000/v1
+      - WEATHER_MCP_URL=http://weather-mcp:8001/mcp
+      - TAVILY_MCP_URL=https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}
+    depends_on:
+      - weather-mcp
+
